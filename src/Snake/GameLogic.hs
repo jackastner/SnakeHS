@@ -29,7 +29,7 @@ instance Random a => Random (V2 a) where
               (y,g'') = random g'
 
 instance Random (f a) => Random (Point f a) where
-    randomR ((P l), (P u)) g = first P $ randomR (l,u) g
+    randomR (P l, P u) g = first P $ randomR (l,u) g
     random g = first P $ random g
                                   
 
@@ -58,5 +58,5 @@ advanceGame game@(SnakeGame snake goal dir score over bounds rng) =
           (newGoal,g) = if eatsFood goal  newSnake 
                             then randomR bounds rng
                             else (goal,rng)
-          newScore = score + (fromEnum $ eatsFood goal newSnake)
+          newScore = score + fromEnum (eatsFood goal newSnake)
           newGameOver = eatsSelf newSnake || outOfBounds bounds newSnake
