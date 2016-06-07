@@ -10,6 +10,7 @@ import SDL.Video
 import System.Random
 
 import Control.Monad.State.Lazy
+import Control.Concurrent.Thread.Delay --evil
 
 import Foreign.C.Types
 
@@ -25,5 +26,6 @@ playGame o = do w <- createSnakeWindow
                     advanceGameST
                     drawSnakeGameST r o
                     present r
+                    liftIO $ delay 100000
            
-initialGame =  SnakeGame [P $ V2 0 0] (P $ V2 5 5) (V2 1 1) 0 False (P $ V2 0 0, P $ V2 10 10)  (mkStdGen 0)
+initialGame =  SnakeGame [P $ V2 0 0, P $ V2 0 1, P $ V2 0 2] (P $ V2 5 5) (V2 1 1) 0 False (P $ V2 0 0, P $ V2 10 10)  (mkStdGen 0)
