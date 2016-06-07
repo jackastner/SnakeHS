@@ -28,4 +28,4 @@ playGame o = do w <- createSnakeWindow
                     present r
                     liftIO $ delay 100000
            
-initialGame =  SnakeGame [P $ V2 0 0, P $ V2 0 1, P $ V2 0 2] (P $ V2 5 5) (V2 1 1) 0 False (P $ V2 0 0, P $ V2 10 10)  (mkStdGen 0)
+initialGame =  SnakeGame [P $ V2 0 0, P $ V2 0 1, P $ V2 0 2] (P $ V2 5 5) (V2 1 1) 0 False (V2 10 10)  (mkStdGen 0)

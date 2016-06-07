@@ -18,7 +18,7 @@ data SnakeGame a = SnakeGame {snake :: [Point V2 a],
                             snakeDir :: V2 a,
                             score :: Int,
                             gameOver :: Bool,
-                            bounds :: (Point V2 a,Point V2 a),
+                            bounds :: V2 a,
                             rng :: StdGen}
 
 instance Random a => Random (V2 a) where
@@ -41,9 +41,8 @@ advanceSnake d s@(h:_) = (h.+^d):init s
 eatsSelf :: Eq a => [a] -> Bool
 eatsSelf s = nub s /= s
 
-outOfBounds :: (Ord a, R2 t, R2 t1, R2 t2) => (t1 a, t2 a) -> [t a] -> Bool
-outOfBounds (u,l) (h:_) = h^._x > u^._x || h^._y < u^._y || h^._x > l^._x || h^._y < l^._y
-
+outOfBounds :: (Num a, Ord a, R2 t, R2 t1) => t1 a -> [t a] -> Bool
+outOfBounds b (h:_) = h^._x < 0 || h^._y < 0 || h^._x > b^._x || h^._y > b^._y
 
 eatsFood :: Eq a => a -> [a] -> Bool
 eatsFood f (h:_) = h == f
@@ -60,9 +59,11 @@ advanceGame game@(SnakeGame snake goal dir score over bounds rng) =
                       score = newScore,
                       gameOver = newGameOver,
                       rng = g}
-    where newSnake = advanceSnake dir snake 
-          (newGoal,g) = if eatsFood goal  newSnake 
-                            then randomR bounds rng
+    where newSnake = if eatsFood goal $ advanceSnake dir snake
+                         then  goal:snake
+                         else advanceSnake dir snake
+          (newGoal,g) = if eatsFood goal snake 
+                            then randomR (origin, P bounds) rng
                             else (goal,rng)
           newScore = score + fromEnum (eatsFood goal newSnake)
           newGameOver = eatsSelf newSnake || outOfBounds bounds newSnake
