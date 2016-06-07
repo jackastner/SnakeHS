@@ -1,5 +1,6 @@
 import Snake.Render
 import Snake.GameLogic
+import Snake.EventHandler
 
 import Linear.Affine
 import Linear.V2
@@ -8,17 +9,21 @@ import SDL.Video
 
 import System.Random
 
-main = do w <- createSnakeWindow
-          r <- createRenderer w (-1) defaultRenderer
-          let o = defaultOptions
-          
-          drawSnakeGame r o initialGame
+import Control.Monad.State.Lazy
 
-          present r
+import Foreign.C.Types
 
-          getLine
-          
-          destroyRenderer r
-          destroyWindow w
+main = evalStateT (playGame defaultOptions) initialGame
+
+    
+playGame :: MonadIO m => SnakeRenderOptions CInt -> StateT (SnakeGame CInt) m ()
+playGame o = do w <- createSnakeWindow
+                r <- createRenderer w (-1) defaultRenderer
+
+                forever $ do
+                    handleEventQueue
+                    advanceGameST
+                    drawSnakeGameST r o
+                    present r
            
 initialGame =  SnakeGame [P $ V2 0 0] (P $ V2 5 5) (V2 1 1) 0 False (P $ V2 0 0, P $ V2 10 10)  (mkStdGen 0)

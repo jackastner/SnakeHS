@@ -8,6 +8,7 @@ import Control.Lens
 import Control.Applicative
 import Control.Arrow
 import Control.Monad
+import Control.Monad.State.Lazy
 
 import Linear.Affine
 import Linear.V2
@@ -46,6 +47,11 @@ outOfBounds (u,l) (h:_) = h^._x > u^._x || h^._y < u^._y || h^._x > l^._x || h^.
 
 eatsFood :: Eq a => a -> [a] -> Bool
 eatsFood f (h:_) = h == f
+
+advanceGameST :: (MonadIO m, Num a, Ord a, Random a) => StateT (SnakeGame a) m ()
+advanceGameST = do
+    g <- get
+    put $ advanceGame g
 
 advanceGame :: (Num a, Ord a, Random a) => SnakeGame a -> SnakeGame a
 advanceGame game@(SnakeGame snake goal dir score over bounds rng) = 

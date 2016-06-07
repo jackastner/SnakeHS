@@ -1,14 +1,19 @@
 module Snake.Render where
 
-import qualified Data.Text as T
-import Data.StateVar
+import Data.Text (pack)
+import Data.StateVar (($=))
 import Data.Word
+
+import Control.Monad.IO.Class
+import Control.Monad.State.Lazy
 
 import SDL.Video
 
 import Linear.V4
 import Linear.V2
 import Linear.Affine
+
+import Foreign.C.Types
 
 import Snake.GameLogic
 
@@ -25,8 +30,14 @@ defaultOptions = SnakeRenderOptions {
     goalColor       = V4 0x00 0xff 0x00 0xff,
     scale           = 10}
 
-createSnakeWindow :: IO Window
-createSnakeWindow = createWindow (T.pack "Snake") defaultWindow
+createSnakeWindow :: MonadIO m => m Window 
+createSnakeWindow = createWindow (pack "Snake") defaultWindow
+
+drawSnakeGameST :: MonadIO m => Renderer -> SnakeRenderOptions CInt -> StateT (SnakeGame CInt) m ()
+drawSnakeGameST r o = do
+    g <- get
+    drawSnakeGame r o g
+    return ()
 
 drawSnakeGame r o g = do
     rendererDrawColor r $= backgroundColor o
