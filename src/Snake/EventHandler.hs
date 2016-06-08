@@ -5,6 +5,7 @@ import Snake.GameLogic
 import Linear.V2
 
 import SDL.Event
+import SDL.Init
 import SDL.Input.Keyboard.Codes
 import SDL.Input.Keyboard
 
@@ -17,7 +18,9 @@ handleEventQueue = mapEvents handleEvent
 
 
 handleEvent :: (Num a, MonadIO m) => Event -> StateT (SnakeGame a) m ()
-handleEvent (Event _ QuitEvent) = liftIO $ exitSuccess
+handleEvent (Event _ QuitEvent) = do
+    quit
+    liftIO $ exitSuccess
 handleEvent (Event _ (KeyboardEvent d)) = do 
     g <- get
     case keysymKeycode $ keyboardEventKeysym d of 

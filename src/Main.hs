@@ -7,6 +7,7 @@ import Linear.V2
 import Linear.Vector
 
 import SDL.Video
+import SDL.Init
 
 import System.Random
 
@@ -21,7 +22,8 @@ main = evalStateT (playGame defaultOptions) initialGame
 
     
 playGame :: MonadIO m => SnakeRenderOptions CInt -> StateT (SnakeGame CInt) m ()
-playGame o = do w <- createSnakeWindow
+playGame o = do initializeAll
+                w <- createSnakeWindow
                 r <- createRenderer w (-1) defaultRenderer
 
                 (*^) (scale o) . (+) 1 . bounds <$> get >>= ($=) (windowSize w)
