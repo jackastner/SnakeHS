@@ -8,19 +8,18 @@ import Linear.Vector
 
 import SDL.Video
 import SDL.Init
+import SDL.Time
 
 import System.Random
 
 import Control.Monad.State.Lazy
-import Control.Concurrent.Thread.Delay --evil
 
 import Data.StateVar (($=))
 import Data.Text (pack)
 
 import Foreign.C.Types
 
-main = evalStateT (playGame defaultOptions) initialGame
-
+main = initialGame >>= evalStateT (playGame defaultOptions)  
     
 playGame :: MonadIO m => SnakeRenderOptions CInt -> StateT (SnakeGame CInt) m ()
 playGame o = do initializeAll
@@ -35,6 +34,6 @@ playGame o = do initializeAll
                     drawSnakeGameST r o
                     pack . ("Snake " ++) .  show . score <$> get >>= ($=) (windowTitle w)
                     present r
-                    liftIO $ delay 100000
+                    delay 50
            
-initialGame =  SnakeGame [P $ V2 0 0, P $ V2 0 1, P $ V2 0 2] (P $ V2 5 5) (V2 1 1) 0 False (V2 10 10)  (mkStdGen 0)
+initialGame =  SnakeGame [P $ V2 15 15] (P $ V2 5 5) (V2 0 0) 0 False (V2 30 30) <$> getStdGen
