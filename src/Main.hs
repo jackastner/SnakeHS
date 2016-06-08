@@ -15,6 +15,7 @@ import Control.Monad.State.Lazy
 import Control.Concurrent.Thread.Delay --evil
 
 import Data.StateVar (($=))
+import Data.Text (pack)
 
 import Foreign.C.Types
 
@@ -32,6 +33,7 @@ playGame o = do initializeAll
                     handleEventQueue
                     advanceGameST
                     drawSnakeGameST r o
+                    pack . ("Snake " ++) .  show . score <$> get >>= ($=) (windowTitle w)
                     present r
                     liftIO $ delay 100000
            
