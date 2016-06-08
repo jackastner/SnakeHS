@@ -25,8 +25,8 @@ data SnakeRenderOptions a = SnakeRenderOptions {
 
 defaultOptions :: Num a => SnakeRenderOptions a
 defaultOptions = SnakeRenderOptions {
-    backgroundColor = V4 0xff 0xff 0xff 0xff,
-    snakeColor      = V4 0x00 0x00 0x00 0xff,
+    backgroundColor = V4 0x00 0x00 0x00 0xff,
+    snakeColor      = V4 0xff 0xff 0xff 0xff,
     goalColor       = V4 0x00 0xff 0x00 0xff,
     scale           = 10}
 
@@ -48,7 +48,6 @@ drawSnakeGame r o g = do
 
     rendererDrawColor r $= goalColor o
     drawGoal r o g
-
 
 drawSnake r o g = mapM_ (drawGameSquare r o) $ snake g
 drawGoal  r o g = drawGameSquare r o $ goal g
