@@ -31,6 +31,8 @@ playGame o = do initializeAll
                 forever $ do
                     handleEventQueue
                     advanceGameST
+                    over <- gameOver <$> get
+                    when over resetGameST
                     drawSnakeGameST r o
                     pack . ("Snake " ++) .  show . score <$> get >>= ($=) (windowTitle w)
                     present r

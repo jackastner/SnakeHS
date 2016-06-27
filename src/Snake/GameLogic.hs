@@ -52,15 +52,20 @@ advanceGameST = do
     g <- get
     put $ advanceGame g
 
+resetGameST :: (MonadIO m, Num a, Ord a, Random a) => StateT (SnakeGame a) m ()
+resetGameST = do
+    st <- get
+    put $ st {score = 0, gameOver = False, snake = [head $ snake st]}
+
 advanceGame :: (Num a, Ord a, Random a) => SnakeGame a -> SnakeGame a
 advanceGame game@(SnakeGame snake goal dir score over bounds rng) = 
                 game {snake = newSnake,
                       goal = newGoal,
                       score = newScore,
-                      gameOver = newGameOver,
+                      gameOver = gameOver game || newGameOver,
                       rng = g}
     where newSnake = if eatsFood goal $ advanceSnake dir snake
-                         then  goal:snake
+                         then goal:snake
                          else advanceSnake dir snake
           (newGoal,g) = if eatsFood goal snake 
                             then randomR (origin, P bounds) rng
