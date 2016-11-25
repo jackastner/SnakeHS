@@ -26,7 +26,7 @@ playGame o = do initializeAll
                 w <- createSnakeWindow
                 r <- createRenderer w (-1) defaultRenderer
 
-                (*^) (scale o) . (+) 1 . bounds <$> get >>= ($=) (windowSize w)
+                (*^) (scale o) . (+) 1 . bounds <$> get >>= (windowSize w $=)
 
                 forever $ do
                     handleEventQueue
@@ -34,7 +34,7 @@ playGame o = do initializeAll
                     over <- gameOver <$> get
                     when over resetGameST
                     drawSnakeGameST r o
-                    pack . ("Snake " ++) .  show . score <$> get >>= ($=) (windowTitle w)
+                    pack . ("Snake " ++) .  show . score <$> get >>= (windowTitle w $=)
                     present r
                     delay 50
            
