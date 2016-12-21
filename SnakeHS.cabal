@@ -12,10 +12,11 @@ category:            Web
 build-type:          Simple
 cabal-version:       >=1.10
 extra-source-files:  README.md
+data-files: sprites/snake.bmp
 
 executable SnakeHS
   hs-source-dirs:      src
-  other-modules:  Snake.EventHandler, Snake.GameLogic, Snake.Render, Snake.Types
+  other-modules:  Snake.EventHandler, Snake.GameLogic, Snake.Render, Snake.Types, Paths_SnakeHS
   other-extensions:    FlexibleContexts
   build-depends: base, linear, sdl2, sdl2-ttf, random, mtl, StateVar, text, transformers , lens
   main-is:             Main.hs

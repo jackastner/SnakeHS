@@ -3,6 +3,7 @@ module Snake.Types where
 import Data.Word
 
 import SDL.Font as Font
+import SDL.Video
 
 import Linear.V4
 import Linear.V2
@@ -53,6 +54,7 @@ instance Random (f a) => Random (Point f a) where
     random g = first P $ random g
 
 data SnakeRenderOptions = SnakeRenderOptions {
+    spriteSheet :: Texture,
     backgroundColor :: V4 Word8,
     snakeColor :: V4 Word8,
     goalColor  :: V4 Word8,
