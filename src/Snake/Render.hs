@@ -8,6 +8,7 @@ import Control.Monad.IO.Class
 import Control.Monad.State.Lazy
 
 import SDL.Video
+import SDL.Font as Font
 
 import Linear.V4
 import Linear.V2
@@ -21,14 +22,24 @@ data SnakeRenderOptions a = SnakeRenderOptions {
     backgroundColor :: V4 Word8,
     snakeColor :: V4 Word8,
     goalColor  :: V4 Word8,
-    scale      :: a}
+    scale      :: a,
+    menuFont   :: Font.Font,
+    menuColor  :: V4 Word8,
+    highlight  :: V4 Word8}
 
-defaultOptions :: Num a => SnakeRenderOptions a
-defaultOptions = SnakeRenderOptions {
+-- change to font available on your system
+defaultFontPath = "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
+
+defaultOptions :: (MonadIO m, Num a) => m (SnakeRenderOptions a)
+defaultOptions = (\font -> SnakeRenderOptions {
     backgroundColor = V4 0x00 0x00 0x00 0xff,
     snakeColor      = V4 0xff 0xff 0xff 0xff,
     goalColor       = V4 0x00 0xff 0x00 0xff,
-    scale           = 10}
+    scale           = 10,
+    menuFont        = font,
+    menuColor       = V4 0xff 0xff 0xff 0xff,
+    highlight       = V4 0xff 0x00 0x00 0x00
+    }) <$> (Font.load defaultFontPath 24)
 
 createSnakeWindow :: MonadIO m => m Window 
 createSnakeWindow = createWindow (pack "Snake") defaultWindow
@@ -36,8 +47,26 @@ createSnakeWindow = createWindow (pack "Snake") defaultWindow
 drawSnakeGameST :: MonadIO m => Renderer -> SnakeRenderOptions CInt -> StateT (SnakeGame CInt) m ()
 drawSnakeGameST r o = do
     g <- get
-    drawSnakeGame r o g
+    when (not $ gameOver g) (drawSnakeGame r o g)
+    when (gameOver g) (drawMenu r o g)
     return ()
+
+drawMenu r o g = do
+  let color = (if selectedItem g == NewGame then highlight o else menuColor o)
+  surface <- Font.solid (menuFont o) color (pack "New Game")
+  texture <- createTextureFromSurface r surface
+  infoNewGame <- queryTexture texture
+  let hNewGame = textureHeight infoNewGame
+  let wNewGame = textureWidth infoNewGame
+  copy r texture Nothing (Just $ Rectangle (P $ V2 0 0) (V2 wNewGame hNewGame))
+
+  let color = (if selectedItem g == Exit then highlight o else menuColor o)
+  surface <- Font.solid (menuFont o) color (pack "Exit")
+  texture <- createTextureFromSurface r surface
+  infoExit <- queryTexture texture
+  let hExit = textureHeight infoExit
+  let wExit = textureWidth infoExit
+  copy r texture Nothing (Just $ Rectangle (P $ V2 0 hNewGame) (V2 wExit hExit))
 
 drawSnakeGame r o g = do
     rendererDrawColor r $= backgroundColor o

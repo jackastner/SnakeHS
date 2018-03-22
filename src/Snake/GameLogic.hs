@@ -3,6 +3,7 @@ module Snake.GameLogic where
 
 import Data.List
 import System.Random
+import System.Exit
 
 import Control.Lens
 import Control.Applicative
@@ -12,6 +13,7 @@ import Control.Monad.State.Lazy
 
 import Linear.Affine
 import Linear.V2
+import Linear.Vector
 
 data SnakeGame a = SnakeGame {snake :: [Point V2 a],
                             goal :: Point V2 a ,
@@ -19,7 +21,10 @@ data SnakeGame a = SnakeGame {snake :: [Point V2 a],
                             score :: Int,
                             gameOver :: Bool,
                             bounds :: V2 a,
+                            selectedItem :: MenuItem,
                             rng :: StdGen}
+
+data MenuItem = NewGame | Exit deriving (Eq, Enum)
 
 instance Random a => Random (V2 a) where
     randomR (l,u) g = (V2 x y,g'')
@@ -32,8 +37,31 @@ instance Random a => Random (V2 a) where
 instance Random (f a) => Random (Point f a) where
     randomR (P l, P u) g = first P $ randomR (l,u) g
     random g = first P $ random g
-                                  
 
+doMenuActionST :: (Integral a, MonadIO m, Num a, Ord a, Random a) => StateT (SnakeGame a) m ()
+doMenuActionST = do
+    item <- selectedItem <$> get
+    when (item == NewGame) resetGameST
+    when (item == Exit) (liftIO exitSuccess)
+    return ()
+
+nextMenuItemST :: (MonadIO m, Num a, Ord a, Random a) => StateT (SnakeGame a) m ()
+nextMenuItemST = do
+    g <- get
+    let next = nextMenuItem . selectedItem $ g
+    put $ g {selectedItem = next}
+
+nextMenuItem NewGame = Exit
+nextMenuItem Exit = Exit
+
+prevMenuItemST :: (MonadIO m, Num a, Ord a, Random a) => StateT (SnakeGame a) m ()
+prevMenuItemST = do
+    g <- get
+    let prev = prevMenuItem . selectedItem $ g
+    put $ g {selectedItem = prev}
+
+prevMenuItem NewGame = NewGame
+prevMenuItem Exit = NewGame
 
 advanceSnake :: (Num a, Affine p) => Diff p a -> [p a] -> [p a]
 advanceSnake d s@(h:_) = (h.+^d):init s
@@ -50,15 +78,15 @@ eatsFood f (h:_) = h == f
 advanceGameST :: (MonadIO m, Num a, Ord a, Random a) => StateT (SnakeGame a) m ()
 advanceGameST = do
     g <- get
-    put $ advanceGame g
+    when (not $ gameOver g) (put $ advanceGame g)
 
-resetGameST :: (MonadIO m, Num a, Ord a, Random a) => StateT (SnakeGame a) m ()
+resetGameST :: (Integral a, MonadIO m, Num a, Ord a, Random a) => StateT (SnakeGame a) m ()
 resetGameST = do
     st <- get
-    put $ st {score = 0, gameOver = False, snake = [head $ snake st]}
+    put $ st {snake = [P $ (((flip div) 2) <$> (bounds st))], score = 0, gameOver = False}
 
 advanceGame :: (Num a, Ord a, Random a) => SnakeGame a -> SnakeGame a
-advanceGame game@(SnakeGame snake goal dir score over bounds rng) = 
+advanceGame game@(SnakeGame snake goal dir score over bounds item rng) =
                 game {snake = newSnake,
                       goal = newGoal,
                       score = newScore,
