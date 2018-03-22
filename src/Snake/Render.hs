@@ -52,13 +52,17 @@ drawSnakeGameST r o = do
     return ()
 
 drawMenu r o g = do
+  let (V2 w h) = bounds g
+  let centerW = (w * (scale o)) `div` 2
+  let centerH = (h * (scale o)) `div` 2
+
   let color = (if selectedItem g == NewGame then highlight o else menuColor o)
   surface <- Font.solid (menuFont o) color (pack "New Game")
   texture <- createTextureFromSurface r surface
   infoNewGame <- queryTexture texture
   let hNewGame = textureHeight infoNewGame
   let wNewGame = textureWidth infoNewGame
-  copy r texture Nothing (Just $ Rectangle (P $ V2 0 0) (V2 wNewGame hNewGame))
+  copy r texture Nothing (Just $ Rectangle (P $ V2 (centerW - (wNewGame `div` 2)) (centerH - hNewGame)) (V2 wNewGame hNewGame))
 
   let color = (if selectedItem g == Exit then highlight o else menuColor o)
   surface <- Font.solid (menuFont o) color (pack "Exit")
@@ -66,7 +70,7 @@ drawMenu r o g = do
   infoExit <- queryTexture texture
   let hExit = textureHeight infoExit
   let wExit = textureWidth infoExit
-  copy r texture Nothing (Just $ Rectangle (P $ V2 0 hNewGame) (V2 wExit hExit))
+  copy r texture Nothing (Just $ Rectangle (P $ V2 (centerW - (wExit `div` 2)) centerH) (V2 wExit hExit))
 
 drawSnakeGame r o g = do
     rendererDrawColor r $= backgroundColor o
