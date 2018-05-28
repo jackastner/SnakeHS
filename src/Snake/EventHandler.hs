@@ -2,6 +2,7 @@
 module Snake.EventHandler where 
 
 import Snake.GameLogic
+import Snake.Types
 
 import Linear.V2
 
@@ -15,10 +16,10 @@ import Control.Monad.State.Lazy
 import System.Exit
 import System.Random
 
-handleEventQueue :: (Integral a, Random a, Ord a, Num a, MonadIO m) => StateT (SnakeGame a) m ()
+handleEventQueue :: SnakeGameST ()
 handleEventQueue = mapEvents handleEvent
 
-handleEvent :: (Integral a, Ord a, Random a, Num a, MonadIO m) => Event -> StateT (SnakeGame a) m ()
+handleEvent :: Event -> SnakeGameST ()
 handleEvent (Event _ QuitEvent) = do
     quit
     liftIO $ exitSuccess

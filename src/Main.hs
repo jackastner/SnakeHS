@@ -1,6 +1,7 @@
 import Snake.Render
 import Snake.GameLogic
 import Snake.EventHandler
+import Snake.Types
 
 import Linear.Affine
 import Linear.V2
@@ -27,9 +28,9 @@ main = do
   o <- defaultOptions
   evalStateT (playGame o) g
     
-playGame :: MonadIO m => SnakeRenderOptions CInt -> StateT (SnakeGame CInt) m ()
+playGame :: SnakeRenderOptions -> SnakeGameST ()
 playGame o = do
-  w <- createSnakeWindow
+  w <- liftIO $ createSnakeWindow
   r <- createRenderer w (-1) defaultRenderer
 
   (*^) (scale o) . (+) 1 . bounds <$> get >>= (windowSize w $=)

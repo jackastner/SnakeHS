@@ -17,20 +17,12 @@ import Linear.Affine
 import Foreign.C.Types
 
 import Snake.GameLogic
-
-data SnakeRenderOptions a = SnakeRenderOptions {
-    backgroundColor :: V4 Word8,
-    snakeColor :: V4 Word8,
-    goalColor  :: V4 Word8,
-    scale      :: a,
-    menuFont   :: Font.Font,
-    menuColor  :: V4 Word8,
-    highlight  :: V4 Word8}
+import Snake.Types
 
 -- change to font available on your system
 defaultFontPath = "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
 
-defaultOptions :: (MonadIO m, Num a) => m (SnakeRenderOptions a)
+defaultOptions :: IO SnakeRenderOptions
 defaultOptions = (\font -> SnakeRenderOptions {
     backgroundColor = V4 0x00 0x00 0x00 0xff,
     snakeColor      = V4 0xff 0xff 0xff 0xff,
@@ -41,10 +33,10 @@ defaultOptions = (\font -> SnakeRenderOptions {
     highlight       = V4 0xff 0x00 0x00 0x00
     }) <$> (Font.load defaultFontPath 24)
 
-createSnakeWindow :: MonadIO m => m Window 
+createSnakeWindow :: IO Window
 createSnakeWindow = createWindow (pack "Snake") defaultWindow
 
-drawSnakeGameST :: MonadIO m => Renderer -> SnakeRenderOptions CInt -> StateT (SnakeGame CInt) m ()
+drawSnakeGameST :: Renderer -> SnakeRenderOptions -> SnakeGameST ()
 drawSnakeGameST r o = do
     g <- get
     when (not $ gameOver g) (drawSnakeGame r o g)

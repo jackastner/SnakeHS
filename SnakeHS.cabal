@@ -15,7 +15,7 @@ extra-source-files:  README.md
 
 executable SnakeHS
   hs-source-dirs:      src
-  other-modules:  Snake.EventHandler, Snake.GameLogic, Snake.Render
+  other-modules:  Snake.EventHandler, Snake.GameLogic, Snake.Render, Snake.Types
   other-extensions:    FlexibleContexts
   build-depends: base, linear, sdl2, sdl2-ttf, random, mtl, StateVar, text, transformers , lens
   main-is:             Main.hs
